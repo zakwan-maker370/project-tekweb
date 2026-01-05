@@ -4,10 +4,12 @@ import { Search } from "lucide-react";
 import { useKosts } from "../hooks/useKosts";
 import FilterBar from "../components/FilterBar";
 import KostCard from "../components/KostCard";
+import LoadingSkeleton from "../components/LoadingSkeleton";
+import ErrorMessage from "../components/ErrorMessage";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const { kosts } = useKosts(); // ✅ dari hook
+  const { kosts, loading, error, refetch } = useKosts(); // ✅ Tambahin loading, error, refetch
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("Semua");
 
@@ -66,11 +68,40 @@ const HomePage = () => {
       <section className="max-w-6xl mx-auto px-4 py-10">
         <h2 className="text-xl font-bold mb-6">Rekomendasi Kost</h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredData.map((kost) => (
-            <KostCard key={kost.id} kost={kost} />
-          ))}
-        </div>
+        {/* ✅ TAMPILKAN ERROR */}
+        {error && (
+          <ErrorMessage message={error} onRetry={refetch} />
+        )}
+
+        {/* ✅ TAMPILKAN LOADING */}
+        {loading && !error && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <LoadingSkeleton key={i} />
+            ))}
+          </div>
+        )}
+
+        {/* ✅ TAMPILKAN DATA */}
+        {!loading && !error && filteredData.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {filteredData.map((kost) => (
+              <KostCard key={kost.id} kost={kost} />
+            ))}
+          </div>
+        )}
+
+        {/* ✅ JIKA DATA KOSONG */}
+        {!loading && !error && filteredData.length === 0 && (
+          <div className="text-center py-20">
+            <div className="bg-white rounded-xl p-12 shadow-md">
+              <p className="text-gray-500 text-lg mb-2">🔍 Tidak ada kost ditemukan</p>
+              <p className="text-gray-400 text-sm">
+                Coba ganti filter atau cari dengan kata kunci lain
+              </p>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );
