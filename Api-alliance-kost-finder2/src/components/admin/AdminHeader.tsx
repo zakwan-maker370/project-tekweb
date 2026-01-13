@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from "react"; // ✅ TAMBAHAN 1: Import useState
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LayoutDashboard, Bed, Users, LogOut, Menu, X, Bell, Search, Wallet } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
@@ -16,6 +16,21 @@ export default function AdminHeader({ children, onSearch }: AdminHeaderProps) {
   // State Sidebar
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+  // ✅ TAMBAHAN 2: STATE & DATA NOTIFIKASI
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState([
+    { id: 1, title: "Pembayaran Masuk", desc: "Budi (Kamar A1) transfer Rp 850.000", time: "Baru saja", isRead: false },
+    { id: 2, title: "Komplain Air", desc: "Kran air di Kamar C2 bocor", time: "1 jam lalu", isRead: false },
+    { id: 3, title: "Penghuni Baru", desc: "Siti Aisyah telah registrasi", time: "Kemarin", isRead: true },
+  ]);
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  const handleMarkAsRead = () => {
+    setNotifications(notifications.map(n => ({ ...n, isRead: true })));
+  };
+  // ------------------------------------------
+
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -31,7 +46,7 @@ export default function AdminHeader({ children, onSearch }: AdminHeaderProps) {
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
 
-      {/* --- SIDEBAR --- */}
+      {/* --- SIDEBAR (TIDAK BERUBAH) --- */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out 
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
@@ -117,7 +132,7 @@ export default function AdminHeader({ children, onSearch }: AdminHeaderProps) {
               {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
 
-            {/* ✅ PERUBAHAN DI SINI: SEARCH BAR HANYA MUNCUL JIKA ADA PROPS onSearch */}
+            {/* SEARCH BAR (LOGIKA TETAP SAMA SEPERTI YANG KAMU MINTA) */}
             {onSearch && (
               <div className="relative hidden md:block max-w-md w-full">
                 <div className="relative">
@@ -137,10 +152,54 @@ export default function AdminHeader({ children, onSearch }: AdminHeaderProps) {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="relative p-2 text-gray-400 hover:text-gray-500">
-              <span className="absolute top-2 right-2.5 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
-              <Bell className="w-6 h-6" />
-            </button>
+            
+            {/* ✅ TAMBAHAN 3: FITUR NOTIFIKASI INTERAKTIF */}
+            <div className="relative">
+              <button 
+                onClick={() => setIsNotifOpen(!isNotifOpen)}
+                className="relative p-2 text-gray-400 hover:text-gray-500 transition-colors"
+              >
+                {/* Badge Merah (Angka) */}
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
+                    {unreadCount}
+                  </span>
+                )}
+                <Bell className="w-6 h-6" />
+              </button>
+
+              {/* DROPDOWN MENU */}
+              {isNotifOpen && (
+                <>
+                  {/* Backdrop Transparan untuk menutup saat klik luar */}
+                  <div className="fixed inset-0 z-10" onClick={() => setIsNotifOpen(false)} />
+                  
+                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-100 z-20 overflow-hidden">
+                    <div className="p-3 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                      <h3 className="font-semibold text-gray-700 text-sm">Notifikasi</h3>
+                      {unreadCount > 0 && (
+                        <button onClick={handleMarkAsRead} className="text-xs text-emerald-600 font-medium hover:underline">
+                          Tandai dibaca
+                        </button>
+                      )}
+                    </div>
+                    <div className="max-h-80 overflow-y-auto">
+                      {notifications.map((notif) => (
+                        <div key={notif.id} className={`p-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer ${!notif.isRead ? 'bg-emerald-50/40' : ''}`}>
+                          <div className="flex justify-between items-start">
+                            <h4 className={`text-sm ${!notif.isRead ? 'font-bold text-gray-800' : 'text-gray-600'}`}>{notif.title}</h4>
+                            <span className="text-[10px] text-gray-400">{notif.time}</span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1 line-clamp-2">{notif.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+            {/* ✅ AKHIR TAMBAHAN FITUR NOTIFIKASI */}
+
           </div>
         </header>
 
