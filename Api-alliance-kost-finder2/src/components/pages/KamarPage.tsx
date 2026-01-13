@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import AdminHeader from "../admin/AdminHeader"; 
+import React, { useState, useEffect } from "react";
+import AdminHeader from "../admin/AdminHeader";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,7 +9,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "../ui/alert-dialog";
 
 interface Kamar {
   id: string;
@@ -26,13 +26,13 @@ export default function KamarPage() {
   // --- 1. STATE MANAGEMENT ---
   const [searchTerm, setSearchTerm] = useState("");
   const [dataKamar, setDataKamar] = useState<Kamar[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // ✅ State loading yang benar
+  const [isLoading, setIsLoading] = useState(true);
 
   // --- STATE FORM ---
   const [showForm, setShowForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false); // ✅ State khusus saat tombol simpan ditekan
+  const [isSaving, setIsSaving] = useState(false);
 
   // --- STATE DELETE DIALOG ---
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -73,7 +73,7 @@ export default function KamarPage() {
   // --- 3. CREATE (POST) & UPDATE (PUT) ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSaving(true); // Gunakan state isSaving biar tombol loading tampil
+    setIsSaving(true);
 
     const payload = {
       name: formData.name,
@@ -104,7 +104,7 @@ export default function KamarPage() {
 
       setShowForm(false);
       resetForm();
-      fetchData(); // Refresh data
+      fetchData();
     } catch (error) {
       console.error("Gagal menyimpan data:", error);
     } finally {
@@ -148,8 +148,8 @@ export default function KamarPage() {
     });
     setEditId(kamar.id);
     setIsEditing(true);
-    setShowForm(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setShowForm(true); // Langsung munculkan Popup
+    // (Logika scroll dihapus karena sudah pakai popup)
   };
 
   const resetForm = () => {
@@ -166,9 +166,9 @@ export default function KamarPage() {
     setEditId(null);
   };
 
-  // ✅ 5. LOGIKA FILTERING DATA (Fixed)
+  // --- 5. LOGIKA FILTERING DATA ---
   const filteredData = dataKamar.filter((kamar) => {
-    if (!searchTerm) return true; // Kalau kosong tampilkan semua
+    if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
     return (
       kamar.name.toLowerCase().includes(term) ||
@@ -178,7 +178,6 @@ export default function KamarPage() {
   });
 
   return (
-    // ✅ PASSING PROPS onSearch KE HEADER
     <AdminHeader onSearch={(term) => setSearchTerm(term)}>
       <div className="p-6 min-h-screen pb-20">
         <div className="flex justify-between items-center mb-6">
@@ -188,153 +187,166 @@ export default function KamarPage() {
           <button
             onClick={() => {
               resetForm();
-              setShowForm(!showForm);
+              setShowForm(true);
             }}
             className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
           >
-            {showForm ? "Batal" : "+ Tambah Kost"}
+            + Tambah Kost
           </button>
         </div>
 
-        {/* --- FORM INPUT --- */}
+        {/* --- FORM INPUT SEBAGAI POPUP (MODAL) --- */}
         {showForm && (
-          <div className="bg-white p-6 rounded-xl shadow-md mb-6 border border-gray-100 animate-in fade-in slide-in-from-top-4">
-            <h2 className="font-semibold mb-4 text-lg">
-              {isEditing ? "Edit Data Kost" : "Tambah Kost Baru"}
-            </h2>
-            <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in">
+            {/* Container Modal */}
+            <div className="bg-white p-6 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto border border-gray-200">
               
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nama Kost
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  placeholder="Contoh: Kost Bahagia 1"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tipe Kost
-                </label>
-                <select
-                  className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
-                  value={formData.type}
-                  onChange={(e) =>
-                    setFormData({ ...formData, type: e.target.value })
-                  }
-                >
-                  <option value="Putra">Putra</option>
-                  <option value="Putri">Putri</option>
-                  <option value="Campur">Campur</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Harga (Per Bulan)
-                </label>
-                <input
-                  type="number"
-                  required
-                  className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
-                  value={formData.price}
-                  onChange={(e) =>
-                    setFormData({ ...formData, price: e.target.value })
-                  }
-                  placeholder="1500000"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  URL Gambar
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
-                  value={formData.image}
-                  onChange={(e) =>
-                    setFormData({ ...formData, image: e.target.value })
-                  }
-                  placeholder="https://..."
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Fasilitas (Pisahkan dengan koma)
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
-                  value={formData.facilitiesInput}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      facilitiesInput: e.target.value,
-                    })
-                  }
-                  placeholder="Wifi, AC, Kamar Mandi Dalam"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Alamat
-                </label>
-                <textarea
-                  required
-                  rows={2}
-                  className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
-                  value={formData.address}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Deskripsi
-                </label>
-                <textarea
-                  required
-                  rows={3}
-                  className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="md:col-span-2 flex justify-end gap-2 mt-2">
+              {/* Header Modal */}
+              <div className="flex justify-between items-center mb-4 border-b pb-2">
+                <h2 className="font-bold text-xl text-gray-800">
+                  {isEditing ? "Edit Data Kost" : "Tambah Kost Baru"}
+                </h2>
                 <button
-                  type="button"
                   onClick={() => setShowForm(false)}
-                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
+                  className="text-gray-400 hover:text-gray-600"
                 >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="px-6 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 disabled:bg-gray-400"
-                >
-                  {isSaving ? "Menyimpan..." : "Simpan Data"}
+                  ✕
                 </button>
               </div>
-            </form>
+
+              <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nama Kost
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    placeholder="Contoh: Kost Bahagia 1"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Tipe Kost
+                  </label>
+                  <select
+                    className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
+                    value={formData.type}
+                    onChange={(e) =>
+                      setFormData({ ...formData, type: e.target.value })
+                    }
+                  >
+                    <option value="Putra">Putra</option>
+                    <option value="Putri">Putri</option>
+                    <option value="Campur">Campur</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Harga (Per Bulan)
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
+                    value={formData.price}
+                    onChange={(e) =>
+                      setFormData({ ...formData, price: e.target.value })
+                    }
+                    placeholder="1500000"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    URL Gambar
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
+                    value={formData.image}
+                    onChange={(e) =>
+                      setFormData({ ...formData, image: e.target.value })
+                    }
+                    placeholder="https://..."
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Fasilitas (Pisahkan dengan koma)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
+                    value={formData.facilitiesInput}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        facilitiesInput: e.target.value,
+                      })
+                    }
+                    placeholder="Wifi, AC, Kamar Mandi Dalam"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Alamat
+                  </label>
+                  <textarea
+                    required
+                    rows={2}
+                    className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
+                    value={formData.address}
+                    onChange={(e) =>
+                      setFormData({ ...formData, address: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Deskripsi
+                  </label>
+                  <textarea
+                    required
+                    rows={3}
+                    className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="md:col-span-2 flex justify-end gap-2 mt-4 pt-4 border-t">
+                  <button
+                    type="button"
+                    onClick={() => setShowForm(false)}
+                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded transition"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className="px-6 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 disabled:bg-gray-400 transition"
+                  >
+                    {isSaving ? "Menyimpan..." : "Simpan Data"}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
 
@@ -351,13 +363,12 @@ export default function KamarPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {/* ✅ LOGIKA LOADING YANG BENAR */}
               {isLoading ? (
                 <tr>
                   <td colSpan={5} className="p-8 text-center text-gray-500">
                     <div className="flex justify-center items-center gap-2">
-                       <span className="animate-spin h-5 w-5 border-2 border-emerald-500 border-t-transparent rounded-full"></span>
-                       Memuat data...
+                      <span className="animate-spin h-5 w-5 border-2 border-emerald-500 border-t-transparent rounded-full"></span>
+                      Memuat data...
                     </div>
                   </td>
                 </tr>

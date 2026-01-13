@@ -16,28 +16,10 @@ import {
 
 export default function PenghuniPage() {
   const DAFTAR_HARGA = [
-  500000,
-  550000,
-  600000,
-  650000,
-  700000,
-  750000,
-  800000,
-  850000,
-  900000,
-  950000,
-  1000000,
-  1100000,
-  1200000,
-  1300000,
-  1400000,
-  1500000,
-  1600000,
-  1700000,
-  1800000,
-  1900000,
-  2000000,
-];
+    500000, 550000, 600000, 650000, 700000, 750000, 800000, 850000, 900000,
+    950000, 1000000, 1100000, 1200000, 1300000, 1400000, 1500000, 1600000,
+    1700000, 1800000, 1900000, 2000000,
+  ];
 
   // --- 1. AMBIL DATA DARI CONTEXT (PUSAT DATA) ---
   const { listPenghuni, tambahPenghuni, isLoading } = useData();
@@ -53,7 +35,6 @@ export default function PenghuniPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Input State
-  // (Pastikan field ini sesuai dengan yang diminta Context: checkInDate)
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -66,8 +47,6 @@ export default function PenghuniPage() {
     hargaSewa: 850000,
   });
 
-  // URL untuk Delete/Edit manual (karena Context kita tadi cuma punya fungsi Tambah)
-  // Pastikan URL ini sama dengan yang di Context
   const API_URL = "https://6958b0096c3282d9f1d58ade.mockapi.io/penhuni";
 
   // --- CRUD OPERATIONS ---
@@ -76,13 +55,12 @@ export default function PenghuniPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validasi sederhana
     if (!formData.name || !formData.roomNumber)
       return alert("Nama dan Kamar wajib diisi");
 
     try {
       if (isEditing && editId) {
-        // --- LOGIKA EDIT (Masih Manual Fetch karena Context belum ada fungsi Edit) ---
+        // --- LOGIKA EDIT ---
         await fetch(`${API_URL}/${editId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -93,17 +71,14 @@ export default function PenghuniPage() {
         );
         window.location.reload();
       } else {
-
-        
-        // --- LOGIKA TAMBAH (PAKAILAH FUNGSI DARI CONTEXT) ---
+        // --- LOGIKA TAMBAH ---
         tambahPenghuni({
           ...formData,
-          // Pastikan format data sesuai kebutuhan Context
-          checkInDate: formData.checkInDate || new Date().toISOString().split("T")[0],
+          checkInDate:
+            formData.checkInDate || new Date().toISOString().split("T")[0],
         });
       }
 
-      // Reset & Tutup Form
       setShowForm(false);
       resetForm();
     } catch (error) {
@@ -122,11 +97,7 @@ export default function PenghuniPage() {
     if (!deleteId) return;
     setIsDeleting(true);
     try {
-      // Manual delete ke API
       await fetch(`${API_URL}/${deleteId}`, { method: "DELETE" });
-
-      // Karena Context belum punya fungsi hapus, kita reload manual
-      // agar data di dashboard sinkron
       window.location.reload();
     } catch (error) {
       console.error("Gagal menghapus:", error);
@@ -152,25 +123,25 @@ export default function PenghuniPage() {
     setEditId(p.id);
     setIsEditing(true);
     setShowForm(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // window.scrollTo dihapus agar tidak lompat, karena sekarang pakai popup
   };
 
-const resetForm = () => {
-  setFormData({
-    name: "",
-    phone: "",
-    roomNumber: "",
-    email: "",
-    kostId: "1",
-    gender: "Laki-laki",
-    checkInDate: "",
-    status: "Aktif",
-    hargaSewa: 850000,
-  });
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      phone: "",
+      roomNumber: "",
+      email: "",
+      kostId: "1",
+      gender: "Laki-laki",
+      checkInDate: "",
+      status: "Aktif",
+      hargaSewa: 850000,
+    });
 
-  setIsEditing(false);
-  setEditId(null);
-};
+    setIsEditing(false);
+    setEditId(null);
+  };
 
   // Format tanggal
   const formatDate = (dateString: string) => {
@@ -187,8 +158,6 @@ const resetForm = () => {
     }
   };
 
-  
-
   return (
     <AdminHeader>
       <div className="p-6 min-h-screen pb-20">
@@ -197,159 +166,170 @@ const resetForm = () => {
           <button
             onClick={() => {
               resetForm();
-              setShowForm(!showForm);
+              setShowForm(true); // Langsung true agar popup muncul
             }}
             className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
           >
-            {showForm ? "Batal" : "+ Tambah Penghuni"}
+            + Tambah Penghuni
           </button>
         </div>
 
-        {/* --- FORM --- */}
+        {/* --- FORM SEBAGAI POPUP / MODAL --- */}
         {showForm && (
-          <div className="bg-white p-6 rounded-xl shadow-md mb-6 border border-gray-100 animate-in fade-in slide-in-from-top-4">
-            <h2 className="font-semibold mb-4 text-lg">
-              {isEditing ? "Edit Data Penghuni" : "Tambah Penghuni Baru"}
-            </h2>
-            <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
-              {/* Nama */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nama Lengkap
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  placeholder="Nama Penghuni"
-                />
-              </div>
-
-              {/* No HP */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  No. WhatsApp
-                </label>
-                <input
-                  type="number"
-                  required
-                  className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                  placeholder="08..."
-                />
-              </div>
-
-              {/* Kamar */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Kamar No.
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
-                  value={formData.roomNumber}
-                  onChange={(e) =>
-                    setFormData({ ...formData, roomNumber: e.target.value })
-                  }
-                  placeholder="A-101"
-                />
-              </div>
-
-              {/* Harga Sewa */}
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    Harga Sewa / Bulan
-  </label>
-  <select
-    className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
-    value={formData.hargaSewa}
-    onChange={(e) =>
-      setFormData({ ...formData, hargaSewa: Number(e.target.value) })
-    }
-  >
-    {DAFTAR_HARGA.map((harga) => (
-      <option key={harga} value={harga}>
-        Rp {harga.toLocaleString("id-ID")}
-      </option>
-    ))}
-  </select>
-</div>
-
-
-              {/* Tanggal Masuk (checkInDate) */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tanggal Masuk
-                </label>
-                <input
-                  type="date"
-                  required
-                  className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
-                  value={formData.checkInDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, checkInDate: e.target.value })
-                  }
-                />
-              </div>
-
-              {/* Status */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Status Penghuni
-                </label>
-                <select
-                  className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
-                  value={formData.status}
-                  onChange={(e) =>
-                    setFormData({ ...formData, status: e.target.value })
-                  }
-                >
-                  <option value="Aktif">Aktif</option>
-                </select>
-              </div>
-
-              {/* Gender (Tambahan biar lengkap sesuai DB) */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Jenis Kelamin
-                </label>
-                <select
-                  className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
-                  value={formData.gender}
-                  onChange={(e) =>
-                    setFormData({ ...formData, gender: e.target.value })
-                  }
-                >
-                  <option value="Laki-laki">Laki-laki</option>
-                  <option value="Perempuan">Perempuan</option>
-                </select>
-              </div>
-
-              <div className="md:col-span-2 flex justify-end gap-2 mt-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in">
+            {/* Container Putih (Modal) */}
+            <div className="bg-white p-6 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto border border-gray-200">
+              <div className="flex justify-between items-center mb-4 border-b pb-2">
+                <h2 className="font-bold text-xl text-gray-800">
+                  {isEditing ? "Edit Data Penghuni" : "Tambah Penghuni Baru"}
+                </h2>
                 <button
-                  type="button"
                   onClick={() => setShowForm(false)}
-                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
+                  className="text-gray-400 hover:text-gray-600"
                 >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="px-6 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 disabled:bg-gray-400"
-                >
-                  {isLoading ? "Menyimpan..." : "Simpan Data"}
+                  ✕
                 </button>
               </div>
-            </form>
+
+              <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
+                {/* Nama */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nama Lengkap
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    placeholder="Nama Penghuni"
+                  />
+                </div>
+
+                {/* No HP */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    No. WhatsApp
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
+                    value={formData.phone}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
+                    placeholder="08..."
+                  />
+                </div>
+
+                {/* Kamar */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Kamar No.
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
+                    value={formData.roomNumber}
+                    onChange={(e) =>
+                      setFormData({ ...formData, roomNumber: e.target.value })
+                    }
+                    placeholder="A-101"
+                  />
+                </div>
+
+                {/* Harga Sewa */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Harga Sewa / Bulan
+                  </label>
+                  <select
+                    className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
+                    value={formData.hargaSewa}
+                    onChange={(e) =>
+                      setFormData({ ...formData, hargaSewa: Number(e.target.value) })
+                    }
+                  >
+                    {DAFTAR_HARGA.map((harga) => (
+                      <option key={harga} value={harga}>
+                        Rp {harga.toLocaleString("id-ID")}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Tanggal Masuk */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Tanggal Masuk
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
+                    value={formData.checkInDate}
+                    onChange={(e) =>
+                      setFormData({ ...formData, checkInDate: e.target.value })
+                    }
+                  />
+                </div>
+
+                {/* Status */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Status Penghuni
+                  </label>
+                  <select
+                    className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
+                    value={formData.status}
+                    onChange={(e) =>
+                      setFormData({ ...formData, status: e.target.value })
+                    }
+                  >
+                    <option value="Aktif">Aktif</option>
+                  </select>
+                </div>
+
+                {/* Gender */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Jenis Kelamin
+                  </label>
+                  <select
+                    className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
+                    value={formData.gender}
+                    onChange={(e) =>
+                      setFormData({ ...formData, gender: e.target.value })
+                    }
+                  >
+                    <option value="Laki-laki">Laki-laki</option>
+                    <option value="Perempuan">Perempuan</option>
+                  </select>
+                </div>
+
+                <div className="md:col-span-2 flex justify-end gap-2 mt-4 pt-4 border-t">
+                  <button
+                    type="button"
+                    onClick={() => setShowForm(false)}
+                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded transition"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="px-6 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 disabled:bg-gray-400 transition"
+                  >
+                    {isLoading ? "Menyimpan..." : "Simpan Data"}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
 
@@ -401,7 +381,6 @@ const resetForm = () => {
                       </div>
                     </td>
                     <td className="p-4 font-medium">{item.roomNumber}</td>
-                    {/* Menggunakan checkInDate sesuai skema Context */}
                     <td className="p-4 text-sm text-gray-600">
                       {formatDate(item.checkInDate)}
                     </td>
