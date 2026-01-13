@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import AdminHeader from "../admin/AdminHeader";
+
+// ✅ SAYA KEMBALIKAN IMPORT SESUAI KODE ASLI KAMU
+import AdminHeader from "../admin/AdminHeader"; 
 import DataTable from "../admin/DataTable";
 import DeleteDialog from "../admin/DeleteDialog";
+
+// Komponen UI (Pastikan ini sudah terinstall/ada)
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -44,7 +48,7 @@ export default function AdminDashboard() {
     setIsDeleting(true);
     try {
       await fetch(`${API_URL}/${deleteId}`, { method: "DELETE" });
-      setData(data.filter((item: any) => item.id !== deleteId)); // Update UI langsung
+      setData(data.filter((item: any) => item.id !== deleteId));
       setDeleteId(null);
     } catch (err) {
       alert("Gagal menghapus data");
@@ -54,8 +58,10 @@ export default function AdminDashboard() {
   };
 
   return (
+    // ✅ PANGGIL ADMINHEADER TANPA PROPS onSearch AGAR SEARCH BAR HILANG
     <AdminHeader>
-      {/* 1. STATS CARDS (Sesuai Warna di Gambar) */}
+      
+      {/* 1. STATS CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card className="bg-emerald-600 text-white border-none shadow-lg">
           <CardContent className="p-6 flex justify-between items-center">
@@ -104,7 +110,7 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      {/* 2. TABEL DATA & ERROR HANDLING */}
+      {/* 2. TABEL DATA */}
       <div className="bg-white rounded-xl shadow-sm border p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-lg font-bold text-gray-800">
@@ -118,7 +124,6 @@ export default function AdminDashboard() {
         </div>
 
         {loading ? (
-          // Skeleton Loading
           <div className="space-y-2">
             <Skeleton className="h-10 w-full" />
             <Skeleton className="h-10 w-full" />
@@ -131,14 +136,13 @@ export default function AdminDashboard() {
         )}
       </div>
 
-      {/* DIALOG HAPUS (Terpisah) */}
+      {/* DIALOG HAPUS */}
       <DeleteDialog
         open={!!deleteId}
         onConfirm={handleDeleteConfirm}
-        onOpenChange={function (open: boolean): void {
-          throw new Error("Function not implemented.");
-        }}
-        loading={false}
+        // ✅ Logic tutup dialog diperbaiki agar tidak error
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        loading={isDeleting}
       />
     </AdminHeader>
   );

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {LayoutDashboard, Bed, Users, LogOut, Menu, X, Bell, Search, Wallet} from "lucide-react";
-import { useAuth } from "../hooks/useAuth"; 
+import { LayoutDashboard, Bed, Users, LogOut, Menu, X, Bell, Search, Wallet } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
 
 interface AdminHeaderProps {
   children: React.ReactNode;
@@ -12,9 +12,9 @@ export default function AdminHeader({ children, onSearch }: AdminHeaderProps) {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // ✅ 1. STATE UNTUK BUKA/TUTUP SIDEBAR
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Default true (terbuka)
+
+  // State Sidebar
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const handleLogout = () => {
     logout();
@@ -30,32 +30,19 @@ export default function AdminHeader({ children, onSearch }: AdminHeaderProps) {
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
-      
+
       {/* --- SIDEBAR --- */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out 
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
-        lg:relative lg:translate-x-0 lg:block`} 
-        // Logic di atas: 
-        // 1. Kalau isSidebarOpen = true, dia muncul.
-        // 2. Di layar besar (lg), dia selalu muncul (lg:translate-x-0).
+        lg:relative lg:translate-x-0 lg:block`}
       >
         <div className="h-full flex flex-col">
           {/* Logo Area */}
           <div className="h-16 flex items-center px-6 border-b border-gray-100">
             <div className="bg-emerald-500 p-1.5 rounded-lg mr-2">
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                />
+              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
             </div>
             <span className="text-xl font-bold text-gray-800">
@@ -74,16 +61,14 @@ export default function AdminHeader({ children, onSearch }: AdminHeaderProps) {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                    isActive
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive
                       ? "bg-emerald-50 text-emerald-600"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  }`}
+                    }`}
                 >
                   <item.icon
-                    className={`w-5 h-5 ${
-                      isActive ? "text-emerald-500" : "text-gray-400"
-                    }`}
+                    className={`w-5 h-5 ${isActive ? "text-emerald-500" : "text-gray-400"
+                      }`}
                   />
                   {item.name}
                 </Link>
@@ -119,12 +104,12 @@ export default function AdminHeader({ children, onSearch }: AdminHeaderProps) {
 
       {/* --- KONTEN UTAMA (KANAN) --- */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        
+
         {/* HEADER ATAS */}
         <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4">
             
-            {/* ✅ 2. TOMBOL MENU SEKARANG BERFUNGSI */}
+            {/* Tombol Menu Mobile */}
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className="p-2 -ml-2 text-gray-500 hover:bg-gray-100 rounded-lg lg:hidden"
@@ -132,23 +117,23 @@ export default function AdminHeader({ children, onSearch }: AdminHeaderProps) {
               {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
 
-            {/* SEARCH BAR */}
-            <div className="relative hidden md:block max-w-md w-full">
-               {/* Search bar dirender di sini, tapi logicnya dikirim dari prop onSearch */}
-               <div className="relative">
+            {/* ✅ PERUBAHAN DI SINI: SEARCH BAR HANYA MUNCUL JIKA ADA PROPS onSearch */}
+            {onSearch && (
+              <div className="relative hidden md:block max-w-md w-full">
+                <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Search className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     type="text"
                     className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-emerald-500 sm:text-sm transition-colors"
-                    placeholder="Cari data penghuni, kamar, atau tagihan..."
-                    onChange={(e) => {
-                      if (onSearch) onSearch(e.target.value);
-                    }}
+                    placeholder="Cari data..."
+                    onChange={(e) => onSearch(e.target.value)}
                   />
-               </div>
-            </div>
+                </div>
+              </div>
+            )}
+            
           </div>
 
           <div className="flex items-center gap-4">
@@ -159,15 +144,15 @@ export default function AdminHeader({ children, onSearch }: AdminHeaderProps) {
           </div>
         </header>
 
-        {/* AREA KONTEN HALAMAN (KamarPage, PenghuniPage masuk sini) */}
+        {/* AREA KONTEN */}
         <main className="flex-1 overflow-auto bg-white">
           {children}
         </main>
       </div>
 
-      {/* OVERLAY HITAM (Hanya muncul di Mobile saat menu terbuka) */}
+      {/* Overlay Mobile */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/20 z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         ></div>

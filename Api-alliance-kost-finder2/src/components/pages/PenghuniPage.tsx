@@ -24,6 +24,9 @@ export default function PenghuniPage() {
   // --- 1. AMBIL DATA DARI CONTEXT (PUSAT DATA) ---
   const { listPenghuni, tambahPenghuni, isLoading } = useData();
 
+  // --- [BARU] STATE PENCARIAN ---
+  const [searchTerm, setSearchTerm] = useState("");
+
   // State Lokal untuk UI (Form & Dialog)
   const [showForm, setShowForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -48,6 +51,22 @@ export default function PenghuniPage() {
   });
 
   const API_URL = "https://6958b0096c3282d9f1d58ade.mockapi.io/penhuni";
+
+  // --- [BARU] LOGIKA FILTER (SEARCH) ---
+  // Ini menyaring data berdasarkan Nama ATAU Nomor Kamar ATAU Status
+  const filteredData = listPenghuni.filter((item) => {
+    if (!searchTerm) return true; // Kalau kosong, tampilkan semua
+    const term = searchTerm.toLowerCase();
+    
+    // Cek apakah Nama mengandung kata pencarian
+    const matchName = item.name ? item.name.toLowerCase().includes(term) : false;
+    // Cek apakah Kamar mengandung kata pencarian
+    const matchRoom = item.roomNumber ? String(item.roomNumber).toLowerCase().includes(term) : false;
+    // Cek apakah Status mengandung kata pencarian
+    const matchStatus = item.status ? item.status.toLowerCase().includes(term) : false;
+
+    return matchName || matchRoom || matchStatus;
+  });
 
   // --- CRUD OPERATIONS ---
 
@@ -123,7 +142,6 @@ export default function PenghuniPage() {
     setEditId(p.id);
     setIsEditing(true);
     setShowForm(true);
-    // window.scrollTo dihapus agar tidak lompat, karena sekarang pakai popup
   };
 
   const resetForm = () => {
@@ -159,7 +177,8 @@ export default function PenghuniPage() {
   };
 
   return (
-    <AdminHeader>
+    // [BARU] Hubungkan onSearch ke setSearchTerm
+    <AdminHeader onSearch={(term) => setSearchTerm(term)}>
       <div className="p-6 min-h-screen pb-20">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800">Data Penghuni</h1>
@@ -333,7 +352,7 @@ export default function PenghuniPage() {
           </div>
         )}
 
-        {/* --- TABLE (Render dari Context listPenghuni) --- */}
+        {/* --- TABLE --- */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full text-left border-collapse">
             <thead className="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider">
@@ -352,14 +371,19 @@ export default function PenghuniPage() {
                     Memuat data dari server...
                   </td>
                 </tr>
-              ) : listPenghuni.length === 0 ? (
+              // [BARU] Ubah listPenghuni.length menjadi filteredData.length
+              ) : filteredData.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="p-6 text-center text-gray-500">
-                    Belum ada data penghuni.
+                    {/* Pesan berbeda jika data kosong total vs tidak ditemukan hasil search */}
+                    {listPenghuni.length === 0 
+                      ? "Belum ada data penghuni." 
+                      : `Tidak ditemukan penghuni dengan kata kunci "${searchTerm}"`}
                   </td>
                 </tr>
               ) : (
-                listPenghuni.map((item) => (
+                // [BARU] Ubah listPenghuni.map menjadi filteredData.map
+                filteredData.map((item) => (
                   <tr key={item.id} className="hover:bg-gray-50 transition">
                     <td className="p-4">
                       <div className="font-bold text-gray-800">{item.name}</div>
