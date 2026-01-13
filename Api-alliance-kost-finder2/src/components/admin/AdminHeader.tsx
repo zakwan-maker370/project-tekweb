@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {LayoutDashboard, Bed, Users, LogOut, Menu, X,    Bell, Search} from "lucide-react";
+import {LayoutDashboard, Bed, Users, LogOut, Menu, X, Bell, Search, Wallet} from "lucide-react";
 import { useAuth } from "../hooks/useAuth"; 
 
 interface AdminHeaderProps {
@@ -25,7 +25,7 @@ export default function AdminHeader({ children, onSearch }: AdminHeaderProps) {
     { name: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
     { name: "Kamar", path: "/admin/kamar", icon: Bed },
     { name: "Penghuni", path: "/admin/penghuni", icon: Users },
-    // Menu Keuangan SUDAH DIHAPUS
+    { name: "Keuangan", path: "/admin/keuangan", icon: Wallet },
   ];
 
   return (

@@ -15,6 +15,30 @@ import {
 } from "../ui/alert-dialog";
 
 export default function PenghuniPage() {
+  const DAFTAR_HARGA = [
+  500000,
+  550000,
+  600000,
+  650000,
+  700000,
+  750000,
+  800000,
+  850000,
+  900000,
+  950000,
+  1000000,
+  1100000,
+  1200000,
+  1300000,
+  1400000,
+  1500000,
+  1600000,
+  1700000,
+  1800000,
+  1900000,
+  2000000,
+];
+
   // --- 1. AMBIL DATA DARI CONTEXT (PUSAT DATA) ---
   const { listPenghuni, tambahPenghuni, isLoading } = useData();
 
@@ -39,7 +63,7 @@ export default function PenghuniPage() {
     gender: "Laki-laki",
     checkInDate: "",
     status: "Aktif",
-    PembayaranStatus: "pending",
+    hargaSewa: 850000,
   });
 
   // URL untuk Delete/Edit manual (karena Context kita tadi cuma punya fungsi Tambah)
@@ -69,12 +93,13 @@ export default function PenghuniPage() {
         );
         window.location.reload();
       } else {
+
+        
         // --- LOGIKA TAMBAH (PAKAILAH FUNGSI DARI CONTEXT) ---
-        await tambahPenghuni({
+        tambahPenghuni({
           ...formData,
           // Pastikan format data sesuai kebutuhan Context
-          checkInDate:
-            formData.checkInDate || new Date().toISOString().split("T")[0],
+          checkInDate: formData.checkInDate || new Date().toISOString().split("T")[0],
         });
       }
 
@@ -122,7 +147,7 @@ export default function PenghuniPage() {
       gender: p.gender || "Laki-laki",
       checkInDate: p.checkInDate || "",
       status: p.status,
-      PembayaranStatus: p.PembayaranStatus || "pending",
+      hargaSewa: p.hargaSewa || 850000,
     });
     setEditId(p.id);
     setIsEditing(true);
@@ -130,21 +155,22 @@ export default function PenghuniPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      phone: "",
-      roomNumber: "",
-      email: "",
-      kostId: "1",
-      gender: "Laki-laki",
-      checkInDate: "",
-      status: "Aktif",
-      PembayaranStatus: "pending",
-    });
-    setIsEditing(false);
-    setEditId(null);
-  };
+const resetForm = () => {
+  setFormData({
+    name: "",
+    phone: "",
+    roomNumber: "",
+    email: "",
+    kostId: "1",
+    gender: "Laki-laki",
+    checkInDate: "",
+    status: "Aktif",
+    hargaSewa: 850000,
+  });
+
+  setIsEditing(false);
+  setEditId(null);
+};
 
   // Format tanggal
   const formatDate = (dateString: string) => {
@@ -160,6 +186,8 @@ export default function PenghuniPage() {
       return dateString;
     }
   };
+
+  
 
   return (
     <AdminHeader>
@@ -235,6 +263,27 @@ export default function PenghuniPage() {
                 />
               </div>
 
+              {/* Harga Sewa */}
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Harga Sewa / Bulan
+  </label>
+  <select
+    className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
+    value={formData.hargaSewa}
+    onChange={(e) =>
+      setFormData({ ...formData, hargaSewa: Number(e.target.value) })
+    }
+  >
+    {DAFTAR_HARGA.map((harga) => (
+      <option key={harga} value={harga}>
+        Rp {harga.toLocaleString("id-ID")}
+      </option>
+    ))}
+  </select>
+</div>
+
+
               {/* Tanggal Masuk (checkInDate) */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -281,25 +330,6 @@ export default function PenghuniPage() {
                 >
                   <option value="Laki-laki">Laki-laki</option>
                   <option value="Perempuan">Perempuan</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Status Pembayaran Awal
-                </label>
-                <select
-                  className="w-full border p-2 rounded"
-                  value={formData.PembayaranStatus}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      PembayaranStatus: e.target.value,
-                    })
-                  }
-                >
-                  <option value="Pending">Pending</option>
-                  <option value="Lunas">Lunas</option>
                 </select>
               </div>
 

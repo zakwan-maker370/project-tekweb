@@ -6,6 +6,8 @@ import DashboardHome from "./components/pages/DashboardHome";
 import LoginPage from "./components/pages/LoginPage";
 import KamarPage from "./components/pages/KamarPage"; 
 import PenghuniPage from "./components/pages/PenghuniPage";
+import KeuanganPage from "./components/pages/KeuanganPage";
+
 
 // 1. PENTING: Import DataProvider
 import { DataProvider } from "./context/DataContext"; 
@@ -37,6 +39,8 @@ function App() {
               {/* ✅ FIXED: PenghuniPage tidak dibungkus AdminHeader di sini */}
               {/* (Asumsi: Di dalam file PenghuniPage.tsx sudah ada AdminHeader sendiri) */}
               <Route path="/admin/penghuni" element={<PenghuniPage />} />
+
+              <Route path="/admin/keuangan" element={<KeuanganPage />} />
 
             </Route>
 
