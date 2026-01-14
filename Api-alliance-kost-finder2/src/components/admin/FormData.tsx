@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 // 1. DEFINISI TIPE PROPS (Pastikan onSubmit ada di sini!)
 interface AdminFormProps {
   initialData?: any;
-  onSubmit: (data: any) => void; // <--- INI WAJIB ADA
+  onSubmit: (data: any) => void; 
   loading: boolean;
 }
 

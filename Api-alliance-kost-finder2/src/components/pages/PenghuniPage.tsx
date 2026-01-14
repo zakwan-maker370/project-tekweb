@@ -57,13 +57,19 @@ export default function PenghuniPage() {
   const filteredData = listPenghuni.filter((item) => {
     if (!searchTerm) return true; // Kalau kosong, tampilkan semua
     const term = searchTerm.toLowerCase();
-    
+
     // Cek apakah Nama mengandung kata pencarian
-    const matchName = item.name ? item.name.toLowerCase().includes(term) : false;
+    const matchName = item.name
+      ? item.name.toLowerCase().includes(term)
+      : false;
     // Cek apakah Kamar mengandung kata pencarian
-    const matchRoom = item.roomNumber ? String(item.roomNumber).toLowerCase().includes(term) : false;
+    const matchRoom = item.roomNumber
+      ? String(item.roomNumber).toLowerCase().includes(term)
+      : false;
     // Cek apakah Status mengandung kata pencarian
-    const matchStatus = item.status ? item.status.toLowerCase().includes(term) : false;
+    const matchStatus = item.status
+      ? item.status.toLowerCase().includes(term)
+      : false;
 
     return matchName || matchRoom || matchStatus;
   });
@@ -210,7 +216,10 @@ export default function PenghuniPage() {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
+              <form
+                onSubmit={handleSubmit}
+                className="grid gap-4 md:grid-cols-2"
+              >
                 {/* Nama */}
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -271,7 +280,10 @@ export default function PenghuniPage() {
                     className="w-full border p-2 rounded focus:ring-2 focus:ring-emerald-500 outline-none"
                     value={formData.hargaSewa}
                     onChange={(e) =>
-                      setFormData({ ...formData, hargaSewa: Number(e.target.value) })
+                      setFormData({
+                        ...formData,
+                        hargaSewa: Number(e.target.value),
+                      })
                     }
                   >
                     {DAFTAR_HARGA.map((harga) => (
@@ -371,13 +383,13 @@ export default function PenghuniPage() {
                     Memuat data dari server...
                   </td>
                 </tr>
-              // [BARU] Ubah listPenghuni.length menjadi filteredData.length
-              ) : filteredData.length === 0 ? (
+              ) : // [BARU] Ubah listPenghuni.length menjadi filteredData.length
+              filteredData.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="p-6 text-center text-gray-500">
                     {/* Pesan berbeda jika data kosong total vs tidak ditemukan hasil search */}
-                    {listPenghuni.length === 0 
-                      ? "Belum ada data penghuni." 
+                    {listPenghuni.length === 0
+                      ? "Belum ada data penghuni."
                       : `Tidak ditemukan penghuni dengan kata kunci "${searchTerm}"`}
                   </td>
                 </tr>

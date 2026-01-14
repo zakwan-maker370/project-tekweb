@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const API_URL = "https://695f4cfc7f037703a81347e2.mockapi.io/kosts";
 
 export default function AdminEditPage() {
-  const { id } = useParams(); // MENANGKAP ID DARI URL
+  const { id } = useParams(); // menangkap id dari URL
   const navigate = useNavigate();
   const [initialData, setInitialData] = useState<any>(undefined);
   const [loading, setLoading] = useState(false);

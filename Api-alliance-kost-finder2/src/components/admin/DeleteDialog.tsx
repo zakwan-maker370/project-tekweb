@@ -7,8 +7,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"; // Pastikan install alert-dialog shadcn
-
+} from "@/components/ui/alert-dialog"; 
 interface DeleteDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
